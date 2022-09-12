@@ -35,7 +35,7 @@ process articMinIONMedaka {
 
     output:
     file("${sampleName}*")
-    
+
     tuple sampleName, file("${sampleName}.primertrimmed.rg.sorted.bam"), emit: ptrim
     tuple sampleName, file("${sampleName}.sorted.bam"), emit: mapped
     tuple sampleName, file("${sampleName}.consensus.fasta"), emit: consensus_fasta
@@ -67,7 +67,8 @@ process articMinIONMedaka {
     --threads ${task.cpus} \
     --scheme-directory ${params.schemeDir}/${params.scheme} \
     --read-file ${fastq} \
-    SARS-CoV-2/${params.schemeVersion} \
+    --scheme-version SARS-CoV-2/${params.schemeVersion} \
+    SARS-CoV-2 \
     ${sampleName}
 
     """
