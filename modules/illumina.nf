@@ -156,7 +156,7 @@ process makeConsensus {
         """
         samtools mpileup -aa -A -B -d ${params.mpileupDepth} -Q0 ${bam} | \
         ivar consensus -t ${params.ivarFreqThreshold} -m ${params.ivarMinDepth} \
-        -n N -p ${sampleName}.primertrimmed.consensus
+        -k -p ${sampleName}.primertrimmed.consensus
         """
 }
 
