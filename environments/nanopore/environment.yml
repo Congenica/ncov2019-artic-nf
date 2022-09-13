@@ -1,8 +1,11 @@
 name: artic
 channels:
-  - conda-forge
-  - bioconda
-  - defaults
+    - epi2melabs
+    - bioconda
+    - conda-forge
+    - defaults
 dependencies:
-  - artic=1.2.2
-  - pyyaml=5.3.1
+    - aplanat=0.5.4
+    - fastcat=0.3.6
+    - np-artic=1.3.0
+    - pomoxis=0.3.6
