@@ -11,6 +11,39 @@ from subprocess import run, PIPE, DEVNULL
 import yaml
 import vcf
 
+
+SAMPLE_ID = "sampleID"
+TYPE = "type"
+NUM_MATCHING_VARS = "num_matching_vars"
+NUM_MISSING_VARS = "num_missing_vars"
+TYPE_COVERAGE = "type_coverage"
+FOUND_VARS = "found_vars"
+MISSING_VARS = "missing_vars"
+ADDITIONAL_VARS = "additional_vars"
+
+TYPING_CSV_COLS = [
+    SAMPLE_ID,
+    TYPE,
+    NUM_MATCHING_VARS,
+    NUM_MISSING_VARS,
+    TYPE_COVERAGE,
+    FOUND_VARS,
+    MISSING_VARS,
+    ADDITIONAL_VARS,
+]
+
+GENE = "gene"
+AA_VAR = "aa_var"
+DNA_VAR = "DNA_VAR"
+
+VARIANTS_CSV_COLS = [
+    SAMPLE_ID,
+    GENE,
+    AA_VAR,
+    DNA_VAR,
+]
+
+
 def parse_args(args=None):
     Description = 'Parse variant call files and call variation consequences.'
 
@@ -41,7 +74,7 @@ def ivar_variants_to_vcf_string(FileIn,RefIn):
 
     filename = os.path.splitext(os.path.basename(FileIn))[0]
 
-    with open(RefIn,"r") as f: 
+    with open(RefIn,"r") as f:
         contigName = []
         for line in f:
             if line.startswith(">"):
@@ -65,7 +98,7 @@ def ivar_variants_to_vcf_string(FileIn,RefIn):
               '##FORMAT=<ID=ALT_QUAL,Number=1,Type=String,Description="Mean quality of alternate base">\n'
               '##FORMAT=<ID=ALT_FREQ,Number=1,Type=String,Description="Frequency of alternate base">\n')
     header += '#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t'+filename+'\n'
-    
+
     varList = []
     vcfString = []
     with open(FileIn) as f:
@@ -141,7 +174,7 @@ def extract_csq_info_from_vcf_string(csqVcf, minAF, minDP):
 
     else:
         vcf_type = None
-    
+
 
     for record in vcf_reader:
 
@@ -200,7 +233,7 @@ def extract_csq_info_from_vcf_string(csqVcf, minAF, minDP):
 def get_variant_summary(info):
 
     sample_vars = []
- 
+
     for variant in info:
 
         aa_r = re.compile("(?P<refpos>[0-9]+)(?P<refaa>[A-Z\*]+)*>*(?P<varpos>[0-9]+)*(?P<varaa>[A-Z\*]+)")
@@ -218,26 +251,26 @@ def get_variant_summary(info):
 
             else:
                 complete_aa_variant_string = aa_var['refaa'] + aa_var['refpos'] + aa_var['varaa']
-  
+
         else:
             complete_aa_variant_string = 'Syn.' + aa_var['refpos'] + aa_var['varaa']
-               
+
 
         complete_dna_variant_string = dna_var['refnucl'] + dna_var['refpos'] + dna_var['varnucl']
 
-        variant_dict = { 'gene' : variant['gene'], 'aa_var' : complete_aa_variant_string, 'dna_var': complete_dna_variant_string }
+        variant_dict = { GENE : variant['gene'], AA_VAR : complete_aa_variant_string, DNA_VAR: complete_dna_variant_string }
 
         if variant_dict not in sample_vars:
             sample_vars.append(variant_dict)
 
     return sample_vars
-    
+
 
 def read_types_yaml(inFile):
     with open(inFile, 'r') as file:
         return yaml.full_load(file)
 
-    
+
 def type_vars_in_sample(types, sample_vars):
 
     types_assigned = []
@@ -263,18 +296,18 @@ def type_vars_in_sample(types, sample_vars):
                         additional_vars_from_type.remove(sample_variant)
 
                         found_var_string = gene + "." + sample_variant['aa_var']
- 
+
                         found_vars_from_type.append(found_var_string)
 
                         count_found += 1
 
-   
+
             for missing_var in data['variants'][gene]:
                 missing_var_string = gene + "." + missing_var
                 if missing_var_string not in missing_vars_from_type:
                    missing_vars_from_type.append(missing_var_string)
                    count_missing += 1
-        
+
         additional_vars_list = []
 
         for add_var in additional_vars_from_type:
@@ -285,13 +318,13 @@ def type_vars_in_sample(types, sample_vars):
         calc_coverage = count_found / ( count_missing + count_found )
 
         if calc_coverage >= data['coverage']:
-            assigned_type = { 'type' : typename, 
-                              'num_matching_vars' : count_found,
-                              'num_missing_vars' : count_missing,
-                              'type_coverage' : round(calc_coverage, 2),
-                              'found_vars': ';'.join(found_vars_from_type),
-                              'missing_vars': ';'.join(missing_vars_from_type),
-                              'additional_vars' : ';'.join(additional_vars_list)}
+            assigned_type = { TYPE : typename,
+                              NUM_MATCHING_VARS : count_found,
+                              NUM_MISSING_VARS : count_missing,
+                              TYPE_COVERAGE : round(calc_coverage, 2),
+                              FOUND_VARS: ';'.join(found_vars_from_type),
+                              MISSING_VARS: ';'.join(missing_vars_from_type),
+                              ADDITIONAL_VARS : ';'.join(additional_vars_list)}
             types_assigned.append(assigned_type)
 
 
@@ -299,17 +332,15 @@ def type_vars_in_sample(types, sample_vars):
 
 def write_types_to_csv(types_assigned, sampleID, csvFileOut):
 
-    fieldnames = list(types_assigned[0].keys())
-
-    fieldnames.insert(0, 'sampleID')
+    fieldnames = TYPING_CSV_COLS
 
     with open(csvFileOut, 'w', newline='') as csvfile:
-        
+
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
         writer.writeheader()
         for row in types_assigned:
-            row['sampleID'] = sampleID
+            row[SAMPLE_ID] = sampleID
             writer.writerow(row)
 
 def read_vcf_to_vcf_string(FileIn):
@@ -329,9 +360,7 @@ def write_csqAnnotatedVcfString_to_file(vcfOut, vcfString):
         f.write(vcfString)
 
 def write_sample_vars_to_csv(summaryCsvOut, sampleID, sampleVars):
-    fieldnames = list(sampleVars[0].keys())
-
-    fieldnames.insert(0, 'sampleID')
+    fieldnames = VARIANTS_CSV_COLS
 
     with open(summaryCsvOut, 'w', newline='') as csvfile:
 
@@ -339,10 +368,10 @@ def write_sample_vars_to_csv(summaryCsvOut, sampleID, sampleVars):
 
         writer.writeheader()
         for row in sampleVars:
-            row['sampleID'] = sampleID
+            row[SAMPLE_ID] = sampleID
             writer.writerow(row)
 
-    
+
 
 def main(args=None):
     args = parse_args(args)
@@ -361,15 +390,13 @@ def main(args=None):
 
     sample_vars = get_variant_summary(infos)
 
-    if sample_vars:
-        write_sample_vars_to_csv(args.SUMMARY_CSV_OUT, args.SAMPLE_ID, sample_vars)
+    write_sample_vars_to_csv(args.SUMMARY_CSV_OUT, args.SAMPLE_ID, sample_vars)
 
     if args.YML_IN:
         types = read_types_yaml(args.YML_IN)
         types_assigned = type_vars_in_sample(types, sample_vars)
 
-        if types_assigned:
-            write_types_to_csv(types_assigned, args.SAMPLE_ID, args.TYPING_CSV_OUT)
+        write_types_to_csv(types_assigned, args.SAMPLE_ID, args.TYPING_CSV_OUT)
 
 if __name__ == '__main__':
     sys.exit(main())
