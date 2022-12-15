@@ -34,7 +34,7 @@ TYPING_CSV_COLS = [
 
 GENE = "gene"
 AA_VAR = "aa_var"
-DNA_VAR = "DNA_VAR"
+DNA_VAR = "dna_var"
 
 VARIANTS_CSV_COLS = [
     SAMPLE_ID,
