@@ -1,9 +1,3 @@
-// ARTIC ncov workflow
-
-// enable dsl2
-nextflow.preview.dsl = 2
-
-// import modules
 include {articGuppyPlex} from '../modules/artic.nf'
 include {articMinIONMedaka} from  '../modules/artic.nf'
 include {articRemoveUnmappedReads} from '../modules/artic.nf'

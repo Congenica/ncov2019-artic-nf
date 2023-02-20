@@ -5,8 +5,11 @@ channels:
   - defaults
 dependencies:
   - python=3.6
+  - pip=20.3.4
   - biopython=1.79
   - libxcb
+    #- cutadapt=3.1
+    #- dnaio=0.4.4
   - matplotlib=3.3.4
   - pandas=1.1.5
   - bwa=0.7.17=pl5.22.0_2
@@ -17,6 +20,6 @@ dependencies:
   - pyvcf=0.6.8
   - pyyaml=5.3.1
   - openjdk=11.0.8
-  - nextflow=21.10.6
+  - nextflow=22.04.05
   - pip:
     - click==7.1.2

@@ -1,14 +1,14 @@
 #!/usr/bin/env nextflow
 
-// enable dsl2
-nextflow.preview.dsl = 2
+// Enable DSL 2 syntax
+nextflow.enable.dsl = 2
 
 // include modules
 include {printHelp} from './modules/help.nf'
 include {makeFastqSearchPath} from './modules/util.nf'
 
 // import subworkflows
-include {articNcovNanopore} from './workflows/articNcovNanopore.nf' 
+include {articNcovNanopore} from './workflows/articNcovNanopore.nf'
 include {ncovIllumina} from './workflows/illuminaNcov.nf'
 include {ncovIlluminaCram} from './workflows/illuminaNcov.nf'
 
@@ -47,7 +47,7 @@ if ( ! params.prefix ) {
          println("The --prefix that you supplied contains a \"/\", please replace it with another character")
          System.exit(1)
      }
-} 
+}
 
 
 
@@ -108,6 +108,6 @@ workflow {
      } else {
          println("Please select a workflow with --illumina or --medaka")
      }
-     
+
 }
 

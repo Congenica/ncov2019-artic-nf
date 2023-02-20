@@ -1,9 +1,3 @@
-#!/usr/bin/env nextflow
-
-// enable dsl2
-nextflow.preview.dsl = 2
-
-// import modules
 include {readTrimming} from '../modules/illumina.nf'
 include {indexReference} from '../modules/illumina.nf'
 include {readMapping} from '../modules/illumina.nf'
