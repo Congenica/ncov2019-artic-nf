@@ -1,5 +1,3 @@
-// ARTIC processes
-
 process articGuppyPlex {
     tag { params.prefix + "-" + fastqDir }
 
@@ -8,19 +6,19 @@ process articGuppyPlex {
     publishDir "${params.outdir}/${task.process.replaceAll(":","_")}", pattern: "${params.prefix}*.fastq", mode: "copy"
 
     input:
-    path(fastqDir)
+        path fastqDir
 
     output:
-    path "${params.prefix}*.fastq", emit: fastq
+        path "${params.prefix}*.fastq", emit: fastq
 
     script:
-    """
-    artic guppyplex \
-    --min-length ${params.min_length} \
-    --max-length ${params.max_length} \
-    --prefix ${params.prefix} \
-    --directory ${fastqDir}
-    """
+        """
+        artic guppyplex \
+        --min-length ${params.min_length} \
+        --max-length ${params.max_length} \
+        --prefix ${params.prefix} \
+        --directory ${fastqDir}
+        """
 }
 
 process articMinIONMedaka {
@@ -31,47 +29,47 @@ process articMinIONMedaka {
     publishDir "${params.outdir}/${task.process.replaceAll(":","_")}", pattern: "${sampleName}*", mode: "copy"
 
     input:
-    tuple file(fastq), file(scheme)
+        tuple path(fastq), path(scheme)
 
     output:
-    file("${sampleName}*")
+        path "${sampleName}*"
 
-    tuple sampleName, file("${sampleName}.primertrimmed.rg.sorted.bam"), emit: ptrim
-    tuple sampleName, file("${sampleName}.sorted.bam"), emit: mapped
-    tuple sampleName, file("${sampleName}.consensus.fasta"), emit: consensus_fasta
-    tuple sampleName, file("${sampleName}.pass.vcf.gz"), emit: vcf
+        tuple val(sampleName), path("${sampleName}.primertrimmed.rg.sorted.bam"), emit: ptrim
+        tuple val(sampleName), path("${sampleName}.sorted.bam"), emit: mapped
+        tuple val(sampleName), path("${sampleName}.consensus.fasta"), emit: consensus_fasta
+        tuple val(sampleName), path("${sampleName}.pass.vcf.gz"), emit: vcf
 
     script:
-    // Make an identifier from the fastq filename
-    sampleName = fastq.getBaseName().replaceAll(~/\.fastq.*$/, '')
+        // Make an identifier from the fastq filename
+        sampleName = fastq.getBaseName().replaceAll(~/\.fastq.*$/, '')
 
-    // Configure artic minion pipeline
-    minionRunConfigBuilder = []
+        // Configure artic minion pipeline
+        minionRunConfigBuilder = []
 
-    if ( params.normalise ) {
-    minionRunConfigBuilder.add("--normalise ${params.normalise}")
-    }
+        if ( params.normalise ) {
+        minionRunConfigBuilder.add("--normalise ${params.normalise}")
+        }
 
-    if ( params.bwa ) {
-    minionRunConfigBuilder.add("--bwa")
-    } else {
-    minionRunConfigBuilder.add("--minimap2")
-    }
+        if ( params.bwa ) {
+        minionRunConfigBuilder.add("--bwa")
+        } else {
+        minionRunConfigBuilder.add("--minimap2")
+        }
 
-    minionFinalConfig = minionRunConfigBuilder.join(" ")
+        minionFinalConfig = minionRunConfigBuilder.join(" ")
 
-    """
-    artic minion --medaka \
-    ${minionFinalConfig} \
-    --medaka-model ${params.medakaModel} \
-    --threads ${task.cpus} \
-    --scheme-directory ${params.schemeDir}/${params.scheme} \
-    --read-file ${fastq} \
-    --scheme-version SARS-CoV-2/${params.schemeVersion} \
-    SARS-CoV-2 \
-    ${sampleName}
+        """
+        artic minion --medaka \
+        ${minionFinalConfig} \
+        --medaka-model ${params.medakaModel} \
+        --threads ${task.cpus} \
+        --scheme-directory ${params.schemeDir}/${params.scheme} \
+        --read-file ${fastq} \
+        --scheme-version SARS-CoV-2/${params.schemeVersion} \
+        SARS-CoV-2 \
+        ${sampleName}
 
-    """
+        """
 }
 
 process articRemoveUnmappedReads {
@@ -80,14 +78,13 @@ process articRemoveUnmappedReads {
     cpus 1
 
     input:
-    tuple(sampleName, path(bamfile))
+        tuple val(sampleName), path(bamfile)
 
     output:
-    tuple( sampleName, file("${sampleName}.mapped.sorted.bam"))
+        tuple val(sampleName), path("${sampleName}.mapped.sorted.bam")
 
     script:
-    """
-    samtools view -F4 -o ${sampleName}.mapped.sorted.bam ${bamfile} 
-    """
+        """
+        samtools view -F4 -o ${sampleName}.mapped.sorted.bam ${bamfile}
+        """
 }
-

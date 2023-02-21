@@ -8,10 +8,10 @@ def makeFastqSearchPath ( illuminaPrefixes, illuminaSuffixes, fastq_exts ) {
         for(ext in fastq_exts){
           if ( illuminaPrefixes ) {
             for (prefix in illuminaPrefixes) {
-              
+
               // Make a glob to recurse directories
               dirNameGlob = params.directory.replaceAll(/\/+$/, "") + '**'
- 
+
               // Make a filename glob
               fileNameGlob = prefix + suff + ext
 
