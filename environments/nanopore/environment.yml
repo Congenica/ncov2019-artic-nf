@@ -15,10 +15,10 @@ dependencies:
   - samtools=1.12
   - libxcb
   - fastcat=0.3.6
-  - np-artic=1.3.0=py_11
+  - artic=1.2.4
   - pomoxis=0.3.6
   - setuptools=59.8.0
   - openjdk=11.0.8
   - nextflow=22.10.0
   - pip:
-    - click==7.1.2
+      - click==7.1.2
