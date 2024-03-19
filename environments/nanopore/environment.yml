@@ -12,7 +12,7 @@ dependencies:
   - fastcat=0.3.6
   - libxcb
   - matplotlib=3.6.2
-  - medaka=1.10.0
+  - medaka=1.11.3
   - nextflow=22.10.0
   - openjdk=11.0.8
   - pandas=1.2.4
