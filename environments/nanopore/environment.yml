@@ -5,20 +5,20 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - awscli=1.27.73
-  - python=3.8.12
-  - pip=21.1
-  - aplanat=0.5.4
-  - biopython=1.78
-  - matplotlib=3.6.2
-  - pandas=1.2.4
-  - samtools=1.12
-  - libxcb
-  - fastcat=0.3.6
   - artic=1.2.4
-  - pomoxis=0.3.6
-  - setuptools=59.8.0
-  - openjdk=11.0.8
+  - awscli=1.27.73
+  - biopython=1.78
+  - aplanat=0.5.4
+  - fastcat=0.3.6
+  - libxcb
+  - matplotlib=3.6.2
+  - medaka=1.11.3
   - nextflow=22.10.0
+  - openjdk=11.0.8
+  - pandas=1.2.4
+  - pip=21.1
+  - pomoxis=0.3.15
+  - samtools=1.17
+  - setuptools=59.8.0
   - pip:
       - click==7.1.2
